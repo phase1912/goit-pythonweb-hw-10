@@ -13,4 +13,6 @@ python-multipart
 alembic
 fastapi-mail
 jinja2
+slowapi
+redis
 

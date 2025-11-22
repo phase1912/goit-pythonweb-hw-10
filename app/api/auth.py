@@ -1,7 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from datetime import timedelta
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from app.db.database import get_db
 from app.services.user_service import UserService, UserAlreadyExistsError
@@ -19,6 +21,8 @@ from app.domain.user import User
 from app.services.email_service import send_verification_email
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+
+limiter = Limiter(key_func=get_remote_address)
 
 
 def get_user_service(db: Session = Depends(get_db)) -> UserService:
@@ -188,3 +192,13 @@ async def resend_verification_email(
     )
 
     return {"message": "Verification email sent"}
+
+
+@router.get("/me", response_model=UserResponse)
+@limiter.limit("10/minute")
+async def read_users_me(
+    request: Request,
+    current_user: User = Depends(get_current_user)
+):
+    return current_user
+
