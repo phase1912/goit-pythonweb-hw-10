@@ -359,5 +359,5 @@ This project is for educational purposes.
 
 ## Author
 
-Created as part of GoIT Full Stack Web Development course.
+Razhyk Bohdan
 
